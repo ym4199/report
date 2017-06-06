@@ -252,3 +252,18 @@ class CommonInfo(models.Model):
 * proxy 모델은 하나의 모델만을 상속받는다. 반면 abstract 클래스 경우 추상모델 클래스가 필드를 가지지 않는다면 몇개든 상속이 가능하다.
 
 > procy 모델은 반드시 추상모델이 아닌 모델을 상속해야 한다.
+
+
+### meta
+Meta options 은 클래스 내부에 클래스로 선언된다.  
+
+```
+class Ox(models.Model):
+	horn_length=models.IntegerField()
+
+	class Meta:
+		ordering = ["horn_length"]
+```
+
+반드시 선언되어야 할 클래스는 아니며 모든 옵션사항을 설정해야 하는 것도 아니다.   
+모델 단위 옵션이며 데이터베이스의 테이블 이름, 또는 복수 설정, 정렬 설정등을 할 수 있다.
