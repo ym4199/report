@@ -18,7 +18,7 @@ class Manufacturer(models.Model):
 > 위의 Manufacturer 의 클래스 선언이 Car의 위치보다 뒤늦게 되었기 때문에 Car 클래스에서 ' ' 로 감싸 표현한다.(아직 정의되지 않은 모델을 사용)   
 > 재귀관계로 만들기 위해 othermodel 에 'self'를 사용한다.
 
-* **Questino  (의미 이해 안돼)**  
+* **Question  (의미 이해 안돼)**  
 	Relationships defiend this way on abstract models are resloved when the model is subclassed as a concrete modle and are not relative to the abstract model's app_label:
 	
 Manufacturer 의 상위에 Production이 있다면 다음과 같이 사용할 수 있을 것이다.
@@ -96,3 +96,38 @@ Article.objects.filter(tag__name='important')
 * ForeignKey.swappable = 기본값은 True 이고 ForeignKey가 settings.AUTH_USER_MODEL의 현재값과 일치하는 모델을 가리키며 관계는 모델이 아닌 설정에 대한 참조를 사용하여 migration에 저장한다.
 
 ## ManyToManyField
+### 상위 개념에 해당하는 모델에  manytomanyfield를 부여하자
+
+```
+class Lecture(models.Model):
+	title= models.CharField(max_length=100)
+	students=models.ManyToManyField(
+		'Student',
+	)
+	def __str__(self):
+		return self.title
+		
+class Student(models.Model):
+	name = models.CharField(max_length=10)	
+```
+
+생각해보자. 물론 학생이 많을 수 있고 수업이 많을 수 있다. 그러나 일반적으로 보다 많은 학생들이 일부의 과목(점수를 잘 주는)을 두고 수강경쟁을 벌인다. 결국 수업을 상위개념으로 두고 학생이 속한다고 하자.  
+따라서 Lecture 내에 Student 모델과 연결되는 students를 만들고 mtm으로 연결시키자.  
+이제 우리는 Student를 역참조할 수 있게되었다.
+
+```
+>>>s1 = Student.objects.create(name='aa')
+>>>s1.save()
+>>>s2 = Student.objects.create(name='bb')
+>>>s2.save()
+>>>l1 = Lecture.objects.create(title='wps')
+>>>l2 = Lecture.objects.create(title='wpswps')
+>>>l1.save()
+>>>l2.save()
+>>>l1.student.add(s1)
+>>>s2.lecture_set.add(l2)
+```
+
+위의 코드로 l1의 강의에 s1 학생이 추가 되었고, s2 학생이 l2에 들어가게 되었다. **앞의 인스턴스가 기준**임을 잊지 말자.
+
+이때 Lecture 에 MTM이 되어있기 때문에 lecture_set 으로 student를 역참조 할 수 있게 되었다.
