@@ -193,4 +193,58 @@ where 와 table 은 문자열 목록을 만들고 모든 where 매개변수는 �
 Entry.objects.extra(where=["foo='a' or bar = 'a'", "baz = 'a'"])
 ```
 
-* order_by : 
+* params : where 매개 변수는 python 데이터베이스 문자열 '%s' 사용하여 데이터베이스 엔진이 자동으로 인용할 수 있다. 매개변수 인자는 대체 될 추가 매개 변수 list 이다. 
+
+```
+Entry.objects.extra(where=['headline=%s'],params=['Lennon'])
+```
+
+항상 값을 직접 포함하는 대신 params를 사용해야한다. params는 값이 백엔드에 따라 정확하게 인용되기 떄문이다. 
+
+```
+Good : 
+Entry.objects.extra(where=['headline=%s'], params=['Lennon'])
+Bad :
+Entry.objects.extra(where=["headline='Lennon'"])
+```
+
+defer(*fields) : 검색하지 않을 필드의 이름을 사용할 수 있다. 
+
+```
+Entry.objects.defer('headline','body')
+```
+
+queryset은 deferred fields 를 모델 인스턴스로 반환한다.   
+다수의 defer()를 호출 할 수 있다. 
+
+```
+Entry.objects.defer('body').filter(rating=5).defer('headline')
+```
+
+* only(*fields) : only method 는 defer()의 반대이다. 모델을 검색할 때 deferred 되지 않은 필드를 포함하여 호출하는데 거의 모든 필드가 deferred 가진다면 only()로 보완한 set을 결과로 하기 때문에 코드가 더 간단해진다. 
+
+```
+Person.objects.defer("age","biography")
+Person.objects.only("name")
+
+
+Entry.objects.only("body","rating").only("headline")
+```
+위 예처럼 only()로 즉시로드 할 필드를 대체할 수 있다.
+
+* using(alias) : 이 방법은 둘 이상의 데이터베이스의 QuerySet을 평가하는데 사용된다. 인자는 오직 별명을 받는다. 
+
+* select_for_update(nowait = False, skip_locked=False) : 행을 transaction, generating까지 잠그고 queryset을 반환한다. 
+
+
+*  raw(raw_query,params=None,translations=None) : raw SQL query 가져와서 실행하고 인스턴스를 반환한다. RawQuerySet 인스턴스는 QuerySet처럼 반복하여 객체 인스턴스를 제공할 수 있다. 
+
+* get(**kwargs) : 지정된 매개변수와 일치하는 객체를 반환한다.  
+MultipleObjectsReturned - 둘 이상의 결과 값을 찾았을 때
+DoesNotExist - 결과를 하나도 못 찾을 때
+
+> 따라서 다수를 찾고자 하면 filter를 사용한다.
+
+* create(**kwargs) : 객체 생성과 저장을 한번의 과정으로 끝낼 수 있다.
+
+* get_or_create(defaults=None, **kwargs) : 
